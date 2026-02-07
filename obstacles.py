@@ -10,7 +10,7 @@ class Cell:
         grid_resolution, number of cells across for the grid
         '''
         # Position, size, type
-        self.position = position*cellsize
+        self.render_position = position*cellsize
         self.cell_width = cellsize
         self.cell_type = cell_type
 
@@ -19,7 +19,8 @@ class Cell:
 
         # Keep track of parameters as a pygame rectangle object
         # https://www.pygame.org/docs/ref/rect.html#pygame.Rect
-        self.rect = pg.Rect(self.position[0],self.position[1],self.cell_width,self.cell_width)
+        self.rect = pg.Rect(self.render_position[0],self.render_position[1],
+                            self.cell_width,self.cell_width)
 
     def display_cell(self,window:pg.Surface):
         '''
