@@ -28,3 +28,7 @@ class Cell:
         '''
         #https://www.pygame.org/docs/ref/draw.html#pygame.draw.rect
         pg.draw.rect(window,self.colors[self.cell_type],self.rect)
+
+        # also draw a 1 pixel border to visually separate non-obstacle cells
+        pg.draw.rect(window,(0,0,0),self.rect,1)
+
