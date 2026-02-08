@@ -1,9 +1,10 @@
 import pygame as pg
 from globals import SCREEN_SIZE
+from pygame import Vector2 as v2
 
 
 class Cell:
-    def __init__(self,position,cell_type,cellsize):
+    def __init__(self,position:v2,cell_type,cellsize):
         '''
         position: grid coordinates, pg Vector2 from grid coordinates
         cell_type, int, currently 0 for empty, 1 for obstacle. Can add as needed

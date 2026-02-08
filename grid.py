@@ -3,6 +3,7 @@ import numpy as np
 import pygame as pg
 from globals import SCREEN_RECT
 from pygame import Vector2 as v2
+from obstacles import Cell
 
 class Gird:
 	'''Grid'''
@@ -22,15 +23,21 @@ class Gird:
 				temp[i].append(0)
 		self.grid = np.array(temp)
 		self.matrix = np.full(self.gridsize,self.gridsize)
+		self.obstacles = []
 
 	def create_grid_objects(self,obstaclesnum:int):
 		#gonna make this a random object gen, we can change it if we want eventually
-		obstacles = []
+		grid = []
 		for i in range(obstaclesnum):
-			obstacles.append(v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1)))
-		for i in range(len(obstacles)):
-			self.grid[int(obstacles[i].x)][int(obstacles[i].y)] = 1
+			grid.append(v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1)))
+		for i in range(len(grid)):
+			self.grid[int(grid[i].x)][int(grid[i].y)] = 1
+			self.obstacles.append(Cell(v2(grid[i].x,grid[i].y),1,self.cellsize))
 		print(self.grid)
+		#print(self.obstacles)
+
+
+
 screen = pg.display.set_mode((800,800))
 test = Gird(screen,16)
 test.create_grid_objects(16)
