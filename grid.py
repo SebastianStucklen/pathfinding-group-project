@@ -5,10 +5,10 @@ from globals import SCREEN_RECT
 from pygame import Vector2 as v2
 from obstacles import Cell
 
-class Gird:
-	'''Grid'''
-	#todo
-	#will take cell number (width and height) and calculate size based on screen size (800x800)
+class Grid:
+	'''Pygame Surface (screen)
+	dimensions of grid as int. (16 for a 16x16 grid etc.)
+	creates grid, places and initialized grid obstacles'''
 	def __init__(self,window:pg.Surface,gridwh:int):
 		self.SCREEN = window
 		#size of each cell
@@ -26,18 +26,18 @@ class Gird:
 		self.obstacles = []
 
 	def create_grid_objects(self,obstaclesnum:int):
-		#gonna make this a random object gen, we can change it if we want eventually
+		'''generates and places grid obstacles'''
 		grid = []
+		#creates list of vectors for obstacle position
 		for i in range(obstaclesnum):
 			grid.append(v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1)))
+		#adds them to the self.grid, and creates list of obstacle objects
 		for i in range(len(grid)):
 			self.grid[int(grid[i].x)][int(grid[i].y)] = 1
 			self.obstacles.append(Cell(v2(grid[i].x,grid[i].y),1,self.cellsize))
-		print(self.grid)
-		#print(self.obstacles)
 
 
-
-screen = pg.display.set_mode((800,800))
-test = Gird(screen,16)
-test.create_grid_objects(16)
+#test code:
+# screen = pg.display.set_mode((800,800))
+# test = Grid(screen,16)
+# test.create_grid_objects(16)
