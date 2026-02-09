@@ -15,8 +15,9 @@ class Vertex:
         self.searched = False
         self.is_goal = False
          
-        # Dijkstra's algorithm cost value (inf by default)
-        self.cost = inf
+        # Dijkstra's algorithm cost value (inf by default) and terrain movement cost (1 for no1)
+        self.total_cost = inf
+        self.move_cost = 1
 
     def get_neighbor_positions(self):
         '''return the four (POSSIBLE) coordinates for neighbor vertices'''
