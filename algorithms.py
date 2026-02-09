@@ -40,7 +40,8 @@ def initialize_scan(start,goal,grid:np.array):
     return scan_matrix,path,queue
 
 def get_valid_neighbors(vertex,scan_matrix,grid):
-    '''For a vertex, returns a list its valid, accessible vertices to check'''
+    '''For a vertex, returns a list its valid, non-obstacle to check'''
+    neighbors = vertex.get_neigbor_positions
     pass
 
 def get_minimums(scan_matrix,min_cost):
@@ -48,8 +49,11 @@ def get_minimums(scan_matrix,min_cost):
 
     #Starting at current minimum cost, add 1 and check if any values in the matrix satisfy this
     min_values = []
+    min_cost += 1
 
     # Use nditer for simplicity's sake https://www.w3schools.com/python/numpy/numpy_array_iterating.asp
+    for vertex in np.nditer(scan_matrix):
+        if vertex.
     
     return min_cost,min_values
 

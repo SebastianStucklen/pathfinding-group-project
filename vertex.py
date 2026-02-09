@@ -19,17 +19,22 @@ class Vertex:
         self.total_cost = inf
         self.move_cost = 1
 
-    def get_neighbor_positions(self):
-        '''return the four (POSSIBLE) coordinates for neighbor vertices'''
+    def get_neighbor_positions(self,grid):
+        '''return the up to four coordinates for valid neighbor vertices in the grid'''
         # Unpack position
         x_pos,y_pos = self.pos
 
-        # Manually return position vectors for each
-        neighbors = [
-            array([x_pos,y_pos+1]),
-            array([x_pos,y_pos+1]),
-            array([x_pos,y_pos+1]),
-            array([x_pos,y_pos+1])
-        ]
+        # Figure out grid limits TODO CHECK IF THESE ARE RIGHT ORDER 
+        limits = grid.shape()
+        x_values = range(limits[0])
+        y_values = range(limits[1])
 
-        return neighbors
+        # Manually return position vectors for each
+        neighbor_positions = []
+
+        for displacement in [-1,1]:
+            # If the displacement is within the area of the grid, it's a valid neighbor
+            if x_pos + displacement in x_values: neighbor_positions.append(array([x_pos+displacement,y_pos]))
+            if y_pos + displacement in y_values: neighbor_positions.append(array([x_pos,y_pos+displacement]))
+
+        return neighbor_positions
