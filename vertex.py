@@ -3,6 +3,7 @@
 
 from numpy import inf, array
 from pygame import Vector2 as v2
+from random import shuffle
 
 class Vertex:
 
@@ -38,5 +39,8 @@ class Vertex:
             # If the displacement is within the area of the grid, it's a valid neighbor
             if x_pos + displacement in x_values: neighbor_positions.append(v2(x_pos+displacement,y_pos))
             if y_pos + displacement in y_values: neighbor_positions.append(v2(x_pos,y_pos+displacement))
+
+        # To avoid preference in direction, shuffle order
+        shuffle(neighbor_positions)
 
         return neighbor_positions

@@ -2,8 +2,7 @@
 # function. Can split into multiple  iles for different algorithms later if 
 # that ends up being easier to work on
 
-# This could also be a class, but I'm not sure what doing that would add. 
-
+# EVERY ARRAY IS INDEXED Y,X!!!!!!!!! DO NOT FORGET THIS!!!!!!! 
 import pygame as pg
 from pygame import Vector2 as v2
 import numpy as np
@@ -51,11 +50,11 @@ class Pathfinder:
 
         # Initialize square scanning matrix of same size as grid
         gridshape = len(self.grid)
-        for x_pos in range(gridshape):
+        for y_pos in range(gridshape):
 
             # Fill columns with default vertices
             column = []
-            for y_pos in range(gridshape):
+            for x_pos in range(gridshape):
                 column.append(Vertex(x_pos,y_pos))
 
             # Append column to vertex matrix
@@ -66,8 +65,8 @@ class Pathfinder:
         self.scan_matrix = np.array(scan_matrix)
         
         # Assign total cost of 0 to starting vertex, goal flag for goal vertex
-        self.scan_matrix[int(self.start.x),int(self.start.y)].total_cost = 0
-        self.scan_matrix[int(self.goal.x),int(self.goal.y)].is_goal = True
+        self.scan_matrix[int(self.start.y),int(self.start.x)].total_cost = 0
+        self.scan_matrix[int(self.goal.y),int(self.goal.x)].is_goal = True
 
 
     def get_valid_neighbors(self,vertex):
@@ -83,8 +82,8 @@ class Pathfinder:
             x,y = int(position.x),int(position.y)
             
             # Add vertex to neighbors if it corresponds to a non-obstacle
-            if self.grid[x,y] != 1: 
-                neighbors.append(self.scan_matrix[x,y])
+            if self.grid[y,x] != 1: 
+                neighbors.append(self.scan_matrix[y,x])
                 #print(position)
 
         return neighbors
@@ -199,8 +198,8 @@ class Pathfinder:
     def check_path_invalid(self):
         # Checks that start and end points are not obstacles to avoid running an obviously impossible sim
         # Exploiting properties allows us to split this into a few legible lines instead of one giant one
-        start_check = self.grid[int(self.start.x),int(self.start.y)] != 1
-        goal_check = self.grid[int(self.goal.x),int(self.goal.y)] != 1
+        start_check = self.grid[int(self.start.y),int(self.start.x)] != 1
+        goal_check = self.grid[int(self.goal.y),int(self.goal.x)] != 1
         return (start_check and goal_check)
     
     def heuristic(self,vertex):
@@ -285,13 +284,15 @@ class Pathfinder:
         # New approach: continuous queue
         # Instead of the for loop. let's make a new function that runs until goal is reached
         # Initialize queue
-        self.queue.append(self.scan_matrix[int(self.start.x),int(self.start.y)])
+        self.queue.append(self.scan_matrix[int(self.start.y),int(self.start.x)])
 
         # Run algorithm until path found
         self.continuous_queue()
 
         # Reconstruct path from grid
         self.return_path()
+
+        print(self.grid)
 
         # Old stuff
                 # Attempt to add a step for every possible square on the grid

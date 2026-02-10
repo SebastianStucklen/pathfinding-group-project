@@ -62,10 +62,13 @@ class Grid:
 # test code:
 screen = pg.display.set_mode((800,800))
 test = Grid(screen,16)
-test.create_grid_objects(40)
+test.create_grid_objects(50)
 test.draw()
-testpath = Pathfinder(screen,v2(0,0),v2(15,15),test.grid,'G')
-testpath.run_pathfinding()
+# testpath = Pathfinder(screen,v2(0,9),v2(15,5),test.grid,'G')
+# testpath.run_pathfinding()
+testpath2 = Pathfinder(screen,v2(0,9),v2(15,5),test.grid,'A')
+testpath2.run_pathfinding()
+
 
 #testpath.draw()
 while True:
