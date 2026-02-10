@@ -62,7 +62,7 @@ class Grid:
 # test code:
 screen = pg.display.set_mode((800,800))
 test = Grid(screen,16)
-test.create_grid_objects(50)
+test.create_grid_objects(30)
 test.draw()
 testpath = DijkstraPathfinder(screen,v2(15,15),v2(0,0),test.grid)
 testpath.run_pathfinding()

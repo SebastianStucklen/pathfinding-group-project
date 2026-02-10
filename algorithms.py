@@ -8,8 +8,8 @@ import pygame as pg
 from pygame import Vector2 as v2
 import numpy as np
 from vertex import Vertex
-import pathfinding
-from pathfinding.finder.a_star import AStarFinder as AStar
+# import pathfinding
+# from pathfinding.finder.a_star import AStarFinder as AStar
 import pdb
 
 class DijkstraPathfinder:
@@ -210,6 +210,54 @@ class DijkstraPathfinder:
         # Score based on "manhattan distance" (based on how it's done here: https://www.redblobgames.com/pathfinding/a-star/introduction.html)
         score = abs(vertex_x-goal_x) + abs(vertex_y-goal_y)
         return score
+    
+    def sort_function(self,item):
+        # For now, this function just returns the total cost
+        return item.total_cost
+
+    def continuous_queue(self):
+        # Interate through queue until goal reached or entire grid has been searched
+        for _ in range(self.search_limit):
+            # Check if queue is empty, break if so
+            if len(self.queue) == 0:
+                print('No path found')
+                return
+
+            # Pull first item from queue
+            vertex = self.queue[0]
+
+            # Get its neighbors
+            neighbors = self.get_valid_neighbors(vertex)
+            #print(neighbors)
+
+            # Iterate through all neighbors that haven't been searched yet
+            for neighbor in neighbors:
+                if neighbor.searched == False:
+
+                    # Update cost 
+                    new_cost = vertex.total_cost + neighbor.move_cost
+
+                    # If that cost is lower than its existing cost, update the total cost to the new value
+                    if neighbor.total_cost > new_cost:
+                        neighbor.total_cost = new_cost
+
+                    # add to queue if it isn't there already
+                    if neighbor not in self.queue:
+                        self.queue.append(neighbor)
+
+                # Also check if it is the goal, update the flag/add to path if so, and stop pathfninding
+                if neighbor.pos == self.goal: 
+                    self.goal_reached = True
+                    self.path.append(neighbor)
+                    return
+                
+            # Flag vetex as searched, remove it from queue, and sort queue by score
+            vertex.searched = True
+            self.queue.pop(0)
+            self.queue.sort(key=self.sort_function)
+            
+        # If no path found, say so
+        print('path not found')
         
     def run_pathfinding(self):
         # Finds cheapest path 
@@ -218,27 +266,41 @@ class DijkstraPathfinder:
             print('invalid path')
             return
 
+        # If start is goal, no path needed
         if self.goal == self.start:
-            self.goal_reached = True
+            print("you're already there!")
+            return
+
+        # New approach: continuous queue
+        # Instead of the for loop. let's make a new function that runs until goal is reached
+        # Initialize queue
+        self.queue.append(self.scan_matrix[int(self.start.x),int(self.start.y)])
+
+        self.continuous_queue()
 
         # Attempt to add a step for every possible square on the grid
-        for _ in range(self.search_limit):            
+        # for _ in range(self.search_limit):            
 
-            # Create queue of equal-cost vertices to check
-            self.get_minimums()
+        #     # Create queue of equal-cost vertices to check
+        #     self.get_minimums()
 
-            # Iterate through queue, implementing the algorithm steps for each vertex
-            self.handle_queue()
+        #     # Iterate through queue, implementing the algorithm steps for each vertex
+        #     self.handle_queue()
 
-            # If we're at the goal, reconstruct and return the path
-            if self.goal_reached == True: 
+        #     # If we're at the goal, reconstruct and return the path
+        #     if self.goal_reached == True: 
                
-                self.return_path()
-                print('path returned')
-                return self.path
+        #         self.return_path()
+        #         print('path returned')
+        #         return self.path
+        # If we've made it this far, find and return the path (if any)
+        self.return_path()
         
         #If no path found, say so
-        print('path not found')
+        #print('path not found')
+
+        
+
 
 
 
