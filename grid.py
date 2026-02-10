@@ -5,6 +5,9 @@ from globals import SCREEN_RECT
 from pygame import Vector2 as v2
 from obstacles import Cell
 from pygame import Rect
+from vertex import Vertex
+from algorithms import DijkstraPathfinder
+
 
 class Grid:
 	'''Pygame Surface (screen)
@@ -31,12 +34,19 @@ class Grid:
 		grid = []
 		#creates list of vectors for obstacle position
 		for i in range(obstaclesnum):
-			grid.append(v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1)))
+			tempob = v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1))
+			if tempob not in grid:
+				grid.append(tempob)
+			else:
+				while tempob in grid:
+					tempob = v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1))
+				grid.append(tempob)
 		#adds them to the self.grid, and creates list of obstacle objects
 		for i in range(len(grid)):
 			self.grid[int(grid[i].x)][int(grid[i].y)] = 1
 			self.obstacles.append(Cell(v2(grid[i].x,grid[i].y),1,self.cellsize))
-		#print(self.grid)
+		with open('output_file.txt', 'w') as file:
+			file.write(str(self.grid))
 
 	def draw(self):
 		self.SCREEN.fill('white')
@@ -45,10 +55,18 @@ class Grid:
 				if self.grid[i][j] == 1:
 					temp = Rect((j*self.cellsize),(i*self.cellsize),self.cellsize,self.cellsize)
 					pg.draw.rect(self.SCREEN,'black',temp)
+				# else:
+				# 	temp = Rect((j*self.cellsize),(i*self.cellsize),self.cellsize,self.cellsize)
+				# 	pg.draw.rect(self.SCREEN,'red',temp)
 
 # test code:
 screen = pg.display.set_mode((800,800))
-test = Grid(screen,16)
-test.create_grid_objects(16)
+test = Grid(screen,8)
+test.create_grid_objects(4)
+test.draw()
+testpath = DijkstraPathfinder(screen,v2(7,7),v2(0,0),test.grid)
+testpath.run_pathfinding()
+
+#testpath.draw()
 while True:
-	test.draw()
+	pg.display.flip()
