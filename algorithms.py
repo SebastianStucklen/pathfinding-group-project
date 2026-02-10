@@ -11,17 +11,13 @@ from vertex import Vertex
 import pathfinding
 from pathfinding.finder.a_star import AStarFinder as AStar
 import pdb
-# Notes:
-# queue.sort(key=,ascending)
-# define key with function
 
 class DijkstraPathfinder:
     # Implements the dijstra pathfinding algorithm using the steps outlined in
     #(https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php)
-    # TODO check if goal is unreachable
 
     def __init__(self,screen:pg.Surface,start:v2,goal:v2,grid):
-
+        '''setup pathfinding algorithm scan'''
         # Initialize various parameters
         self.SCREEN = screen
 
@@ -43,20 +39,20 @@ class DijkstraPathfinder:
         # Cost that defines the frontier
         self.min_cost = 0
         
+        # Path and queue lists
         self.path = []
         self.queue = []
 
-    
-        '''setup pathfinding algorithm scan'''
-        # Initialize vertex scanning matrix
-        gridshape = len(self.grid)
+        # Limits how long the program will spend trying to pass through walls
+        self.search_limit = len(self.grid)**2
 
-        # Iterate through columns
-        for y_pos in range(gridshape):
+        # Initialize square scanning matrix of same size as grid
+        gridshape = len(self.grid)
+        for x_pos in range(gridshape):
 
             # Fill columns with default vertices
             column = []
-            for x_pos in range(gridshape):
+            for y_pos in range(gridshape):
                 column.append(Vertex(x_pos,y_pos))
 
             # Append column to vertex matrix
@@ -73,9 +69,12 @@ class DijkstraPathfinder:
 
     def get_valid_neighbors(self,vertex):
         '''For a vertex, returns a list its valid, non-obstacle to check'''
-        neighbor_positions = []
+        # Get positions of neighbors
         neighbor_positions = vertex.get_neighbor_positions(self.grid)
+
+        # initialize neighbors list
         neighbors = []
+
         for position in neighbor_positions:
             # Unpack position
             x,y = int(position.x),int(position.y)
@@ -83,8 +82,8 @@ class DijkstraPathfinder:
             # Add vertex to neighbors if it corresponds to a non-obstacle
             if self.grid[x,y] != 1: 
                 neighbors.append(self.scan_matrix[x,y])
-                print(position)
-        print('loop done')
+                #print(position)
+
         return neighbors
 
     def get_minimums(self):
@@ -95,40 +94,45 @@ class DijkstraPathfinder:
         self.queue = []
         
         # Run until we have the next minimum value
-        while len(self.queue) == 0:
+        for _ in range(self.search_limit):
 
-            # Iterate through all entries
+            # Iterate through all entries in scan matrix
             for column in self.scan_matrix:
                 for vertex in column:
+
+                    # If this is an unscanned vertex, add it to the queue for scanning
                     if vertex.total_cost == self.min_cost and vertex.searched == False:
                         self.queue.append(vertex)
+                        return
             
             # Once any vertices are added, add 1 to minimum value
             self.min_cost += 1
-            print(self.min_cost)
 
 
     def handle_queue(self):
         # Handle algorithm steps for each entry to check in the queue
         for vertex in self.queue:
-        #if vertex.searched == True:
-            
+
+            # Find neighbors of vertex in queue 
             neighbors = []
             neighbors = self.get_valid_neighbors(vertex)
-            #print(len(neighbors))
+
+            # For each calculate the new total movement cost from origin through current vertex to neighbor
             for neighbor in neighbors:
                 new_cost = vertex.total_cost + neighbor.move_cost
 
-                # For each, set total cost to movement cost + cost to get here if that's lower than the current total
+                # If that cost is lower than its existing cost, update the total cost to the new value
+                if neighbor.total_cost > new_cost:
+                    neighbor.total_cost = new_cost
+
                 # Also check if it is the goal, and update the flag/add to path if so
                 if neighbor.pos == self.goal: 
                     self.goal_reached = True
-                    self.path.append(neighbor)
 
-                if neighbor.total_cost > new_cost:
-                    neighbor.total_cost = new_cost
+                    # Add the neighbor as the only element of the path list
+                    self.path.append(neighbor)
             
-            # Set searched flag to true for the vertex once this is done
+            # Set searched flag to true for the vertex once this is done so it is not checked again
             vertex.searched = True
                 
 
@@ -136,62 +140,90 @@ class DijkstraPathfinder:
     def return_path(self):
         '''From solved scan matrix, reconstruct the path from start to goal'''
         # Only does anything if path is no longer empty (because goal has been added)
-        # print('return path')
         if len(self.path) != 0:
+
+            # Render code
             a = 0
+            width = 50
             pg.font.init()
             font = pg.font.SysFont("Times New Roman", 22) 
+            pg.draw.rect(self.SCREEN,(a,50,50),(self.path[-1].pos.x*width,self.path[-1].pos.y*width,width,width))
+            text_surface = font.render(str(a), True,'black')
+            self.SCREEN.blit(text_surface,(self.path[-1].pos.x*width,self.path[-1].pos.y*width))
+            a += 5
+
+            # Iterate until path is found
             finished = False
             while finished == False:
-                # Check neighbors of most recently added item 
+                # Find neighbors of most recently added item in the path list
                 new_step = self.path[-1]
-        
-                #neighbor_positions= new_step.get_neighbor_positions(self.grid)
                 neighbors = self.get_valid_neighbors(new_step)
-                neighbor_positions = []
-                for neighbor in neighbors:
-                        neighbor_positions.append(neighbor.pos)
 
-                # Add the first neighbor we see with total cost = total cost - move cost
-                for x,y in neighbor_positions:
-                    possible_step = self.scan_matrix[int(x),int(y)]
-                    if possible_step.total_cost == new_step.total_cost - new_step.move_cost:
-                        self.path.append(possible_step)
-                        pg.draw.rect(self.SCREEN,(a,50,50),(possible_step.pos.x*100,possible_step.pos.y*100,100,100))
+                # Iterate through each
+                for neighbor in neighbors:
+
+                    # If the neighbor is a productive step towards the goal, add it to the path
+                    if neighbor.total_cost == new_step.total_cost - new_step.move_cost:
+                        self.path.append(neighbor)
+
+                        # Render code
+                        pg.draw.rect(self.SCREEN,(a,50,50),(neighbor.pos.x*width,neighbor.pos.y*width,width,width))
                         text_surface = font.render(str(a), True,'black')
-                        self.SCREEN.blit(text_surface,(possible_step.pos.x*100,possible_step.pos.y*100))
+                        self.SCREEN.blit(text_surface,(neighbor.pos.x*width,neighbor.pos.y*width))
                         if a <= 235:
-                            a+=20
+                            a+=5
                         break
-                # Repeat until we add something with total cost = 0
+
+                # Repeat until we add something with total cost = 0, as that's the start point!
                 if new_step.total_cost == 0:
                     finished = True
-
+                    
                     # This is a backwards path, so spin it around. https://www.w3schools.com/python/ref_list_reverse.asp
                     self.path.reverse()
 
-                    # This is a list of vertices, and we want coordinates, so we 
-                    # overwrite path with a list of vectors
+                    # This is a list of vertices, and we want coordinates, so overwrite path with a list of vectors
                     vector_list = []
                     for vertex in self.path:
                         vector_list.append(vertex.pos)
                     
                     self.path = vector_list
+
+
     def draw(self):
         for path in self.path:
             pg.draw.rect(self.SCREEN,'yellow',(path.x*100,path.y*100,100,100))
 
+    def check_path_invalid(self):
+        # Checks that start and end points are not obstacles to avoid running an obviously impossible sim
+        # Exploiting properties allows us to split this into a few legible lines instead of one giant one
+        start_check = self.grid[int(self.start.x),int(self.start.y)] != 1
+        goal_check = self.grid[int(self.goal.x),int(self.goal.y)] != 1
+        return (start_check and goal_check)
+    
+    def heuristic(self,vertex):
+        '''Score for distance to goal'''
+        # Might be handy for a greedy-first implementation down the road
+        # Unpack position values from vertex and goal
+        vertex_x,vertex_y = vertex.pos
+        goal_x,goal_y = self.goal.pos
+
+        # Score based on "manhattan distance" (based on how it's done here: https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+        score = abs(vertex_x-goal_x) + abs(vertex_y-goal_y)
+        return score
+        
     def run_pathfinding(self):
         # Finds cheapest path 
-        # Loop until goal reached, unless start is goal, in which case nothing happens
-        # Check if this is a valid questioh
+        # Check if this is a valid question, immediately break if so
+        if self.check_path_invalid() == False:
+            print('invalid path')
+            return
 
         if self.goal == self.start:
             self.goal_reached = True
 
-        while self.goal_reached == False:
-            #pdb.set_trace()
-            print('running')
+        # Attempt to add a step for every possible square on the grid
+        for _ in range(self.search_limit):            
+
             # Create queue of equal-cost vertices to check
             self.get_minimums()
 
@@ -202,8 +234,11 @@ class DijkstraPathfinder:
             if self.goal_reached == True: 
                
                 self.return_path()
-                print('test')
-                print(self.path)
+                print('path returned')
+                return self.path
+        
+        #If no path found, say so
+        print('path not found')
 
 
 

@@ -16,9 +16,10 @@ class Vertex:
         self.searched = False
         self.is_goal = False
          
-        # Dijkstra's algorithm cost value (inf by default) and terrain movement cost (1 for no1)
+        # Dijkstra's algorithm cost value (inf by default), terrain movement cost (1 for now), and heuristic score (inf by default)
         self.total_cost = inf
         self.move_cost = 1
+        self.heuristic = inf
 
     def get_neighbor_positions(self,grid):
         '''return the up to four coordinates for valid neighbor vertices in the grid'''
