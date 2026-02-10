@@ -17,28 +17,25 @@ class Pathfinder:
 
     def __init__(self,screen:pg.Surface,start:v2,goal:v2,grid,algorithm:str):
         '''setup pathfinding algorithm scan'''
-        # Initialize various parameters
+        # store world grid and initialize scanning grid
+        self.grid = grid
+        scan_matrix = []
+
+        # Initialize screen grid parameters
         self.SCREEN = screen
+        self.gridshape = len(self.grid)
+        self.screen_width = self.SCREEN.get_width()
+        self.cell_size = self.screen_width/self.gridshape
 
         # Algorithm to use
         self.algorithm = algorithm
 
-        # Starting position
+        # Starting and goal positions
         self.start = start
-
-        # Goal position
         self.goal = goal
 
-        # world grid
-        self.grid = grid
-
-        # Matrix for implementing pathfinding
-        scan_matrix = []
-
-        # Goal flag
+        # Goal flag and frontier costs
         self.goal_reached = False
-
-        # Cost that defines the frontier
         self.min_cost = 0
         
         # Path and queue lists
@@ -46,19 +43,22 @@ class Pathfinder:
         self.queue = []
 
         # Limits how long the program will spend trying to pass through walls
-        self.search_limit = len(self.grid)**2
+        self.search_limit = self.gridshape**2
+
+        # Rendering parameters for visualizing the algorithm
+        self.radius = self.cell_size * 0.45
+        self.offset = self.cell_size/2
 
         # Initialize square scanning matrix of same size as grid
-        gridshape = len(self.grid)
-        for y_pos in range(gridshape):
+        for y_pos in range(self.gridshape):
 
-            # Fill columns with default vertices
-            column = []
-            for x_pos in range(gridshape):
-                column.append(Vertex(x_pos,y_pos))
+            # Fill rows with default vertices
+            row = []
+            for x_pos in range(self.gridshape):
+                row.append(Vertex(x_pos,y_pos))
 
-            # Append column to vertex matrix
-            scan_matrix.append(column)
+            # Append rows to vertex matrix
+            scan_matrix.append(row)
         
 
         # Turn matrix into a np array
@@ -84,58 +84,57 @@ class Pathfinder:
             # Add vertex to neighbors if it corresponds to a non-obstacle
             if self.grid[y,x] != 1: 
                 neighbors.append(self.scan_matrix[y,x])
-                #print(position)
 
         return neighbors
 
-    def get_minimums(self):
-        '''Find the values in the scan matrix with a minimum cost and return a list of all of them'''
+    # def get_minimums(self):
+    #     '''Find the values in the scan matrix with a minimum cost and return a list of all of them'''
 
-        #Starting at current minimum cost, add 1 and check if any values in the matrix satisfy this
-        # Empty queue
-        self.queue = []
+    #     #Starting at current minimum cost, add 1 and check if any values in the matrix satisfy this
+    #     # Empty queue
+    #     self.queue = []
         
-        # Run until we have the next minimum value
-        for _ in range(self.search_limit):
+    #     # Run until we have the next minimum value
+    #     for _ in range(self.search_limit):
 
-            # Iterate through all entries in scan matrix
-            for column in self.scan_matrix:
-                for vertex in column:
+    #         # Iterate through all entries in scan matrix
+    #         for column in self.scan_matrix:
+    #             for vertex in column:
 
-                    # If this is an unscanned vertex, add it to the queue for scanning
-                    if vertex.total_cost == self.min_cost and vertex.searched == False:
-                        self.queue.append(vertex)
-                        return
+    #                 # If this is an unscanned vertex, add it to the queue for scanning
+    #                 if vertex.total_cost == self.min_cost and vertex.searched == False:
+    #                     self.queue.append(vertex)
+    #                     return
             
-            # Once any vertices are added, add 1 to minimum value
-            self.min_cost += 1
+    #         # Once any vertices are added, add 1 to minimum value
+    #         self.min_cost += 1
 
 
-    def handle_queue(self):
-        # Handle algorithm steps for each entry to check in the queue
-        for vertex in self.queue:
+    # def handle_queue(self):
+    #     # Handle algorithm steps for each entry to check in the queue
+    #     for vertex in self.queue:
 
-            # Find neighbors of vertex in queue 
-            neighbors = []
-            neighbors = self.get_valid_neighbors(vertex)
+    #         # Find neighbors of vertex in queue 
+    #         neighbors = []
+    #         neighbors = self.get_valid_neighbors(vertex)
 
-            # For each calculate the new total movement cost from origin through current vertex to neighbor
-            for neighbor in neighbors:
-                new_cost = vertex.total_cost + neighbor.move_cost
+    #         # For each calculate the new total movement cost from origin through current vertex to neighbor
+    #         for neighbor in neighbors:
+    #             new_cost = vertex.total_cost + neighbor.move_cost
 
-                # If that cost is lower than its existing cost, update the total cost to the new value
-                if neighbor.total_cost > new_cost:
-                    neighbor.total_cost = new_cost
+    #             # If that cost is lower than its existing cost, update the total cost to the new value
+    #             if neighbor.total_cost > new_cost:
+    #                 neighbor.total_cost = new_cost
 
-                # Also check if it is the goal, and update the flag/add to path if so
-                if neighbor.pos == self.goal: 
-                    self.goal_reached = True
+    #             # Also check if it is the goal, and update the flag/add to path if so
+    #             if neighbor.pos == self.goal: 
+    #                 self.goal_reached = True
 
-                    # Add the neighbor as the only element of the path list
-                    self.path.append(neighbor)
+    #                 # Add the neighbor as the only element of the path list
+    #                 self.path.append(neighbor)
             
-            # Set searched flag to true for the vertex once this is done so it is not checked again
-            vertex.searched = True
+    #         # Set searched flag to true for the vertex once this is done so it is not checked again
+    #         vertex.searched = True
                 
 
 
@@ -145,18 +144,19 @@ class Pathfinder:
         if len(self.path) != 0:
 
             # Render code
-            a = 0
-            width = 50
-            pg.font.init()
-            font = pg.font.SysFont("Times New Roman", 22) 
-            pg.draw.rect(self.SCREEN,(a,50,50),(self.path[-1].pos.x*width,self.path[-1].pos.y*width,width,width))
-            text_surface = font.render(str(a), True,'black')
-            self.SCREEN.blit(text_surface,(self.path[-1].pos.x*width,self.path[-1].pos.y*width))
-            a += 5
+            # a = 0
+            # width = self.cell_size
+            # pg.font.init()
+            # font = pg.font.SysFont("Times New Roman", 22) 
+            # pg.draw.rect(self.SCREEN,(a,50,50),(self.path[-1].pos.x*width,self.path[-1].pos.y*width,width,width))
+            # text_surface = font.render(str(a), True,'black')
+            # self.SCREEN.blit(text_surface,(self.path[-1].pos.x*width,self.path[-1].pos.y*width))
+            # a += 5
 
             # Iterate until path is found
             finished = False
             while finished == False:
+                print(len(self.path))
                 # Find neighbors of most recently added item in the path list
                 new_step = self.path[-1]
                 neighbors = self.get_valid_neighbors(new_step)
@@ -169,11 +169,11 @@ class Pathfinder:
                         self.path.append(neighbor)
 
                         # Render code
-                        pg.draw.rect(self.SCREEN,(a,50,50),(neighbor.pos.x*width,neighbor.pos.y*width,width,width))
-                        text_surface = font.render(str(a), True,'black')
-                        self.SCREEN.blit(text_surface,(neighbor.pos.x*width,neighbor.pos.y*width))
-                        if a <= 235:
-                            a+=5
+                        # pg.draw.rect(self.SCREEN,(a,50,50),(neighbor.pos.x*width,neighbor.pos.y*width,width,width))
+                        # text_surface = font.render(str(a), True,'black')
+                        # self.SCREEN.blit(text_surface,(neighbor.pos.x*width,neighbor.pos.y*width))
+                        # if a <= 235:
+                        #     a+=5
                         break
 
                 # Repeat until we add something with total cost = 0, as that's the start point!
@@ -221,8 +221,10 @@ class Pathfinder:
         
 
     def continuous_queue(self):
+        
         # Interate through queue until goal reached or entire grid has been searched
         for _ in range(self.search_limit):
+
             # Check if queue is empty, break if so
             if len(self.queue) == 0:
                 print('path not found')
@@ -261,6 +263,10 @@ class Pathfinder:
             self.queue.pop(0)
             self.queue.sort(key=self.sort_function)
             
+            #Show progress
+            self.display_vertices()
+            pg.time.delay(10)
+            
         # If no path found 
         print('unexpected error')
         
@@ -293,6 +299,41 @@ class Pathfinder:
         self.return_path()
 
         print(self.grid)
+
+    def display_vertices(self):
+
+        # Show all searched vertices in green
+        for row in self.scan_matrix:
+            for vertex in row:
+                if vertex.searched == True:
+                    pg.draw.circle(self.SCREEN,
+                                   (200,200,0),
+                                   (self.cell_size*vertex.pos.x+self.offset,self.cell_size*vertex.pos.y+self.offset),
+                                   self.radius)
+
+        # Show path as a gradient from the source if there is a path to show
+        if len(self.path) > 0:
+            path_gradient_step = 255/len(self.path)
+            color_step = 0
+            for coordinate in self.path:
+                color_step += path_gradient_step
+                pg.draw.circle(self.SCREEN,
+                               (color_step,0,255-color_step),
+                               (self.cell_size*coordinate.x+self.offset,self.cell_size*coordinate.y+self.offset),
+                               self.radius)
+                
+        # Redraw start and endpoints over old map, and updates display
+        self.start_and_end()
+        pg.display.update()
+                
+    def start_and_end(self):
+        '''draw circles at start and endpoints'''
+        pg.draw.circle(self.SCREEN, 'blue', (self.cell_size * self.start.x + self.offset, self.cell_size * self.start.y + self.offset),self.radius)
+        pg.draw.circle(self.SCREEN, 'red', (self.cell_size * self.goal.x + self.offset, self.cell_size * self.goal.y + self.offset),self.radius)
+
+        
+
+
 
         # Old stuff
                 # Attempt to add a step for every possible square on the grid

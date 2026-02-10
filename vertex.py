@@ -44,3 +44,4 @@ class Vertex:
         shuffle(neighbor_positions)
 
         return neighbor_positions
+        
