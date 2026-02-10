@@ -14,6 +14,9 @@ import pdb
 class Pathfinder:
     # Implements the dijstra pathfinding algorithm using the steps outlined in
     #(https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php)
+    # Substantial inspiration from 
+    # https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+    # for this as well
 
     def __init__(self,screen:pg.Surface,start:v2,goal:v2,grid,algorithm:str):
         '''setup pathfinding algorithm scan'''
@@ -86,58 +89,7 @@ class Pathfinder:
                 neighbors.append(self.scan_matrix[y,x])
 
         return neighbors
-
-    # def get_minimums(self):
-    #     '''Find the values in the scan matrix with a minimum cost and return a list of all of them'''
-
-    #     #Starting at current minimum cost, add 1 and check if any values in the matrix satisfy this
-    #     # Empty queue
-    #     self.queue = []
-        
-    #     # Run until we have the next minimum value
-    #     for _ in range(self.search_limit):
-
-    #         # Iterate through all entries in scan matrix
-    #         for column in self.scan_matrix:
-    #             for vertex in column:
-
-    #                 # If this is an unscanned vertex, add it to the queue for scanning
-    #                 if vertex.total_cost == self.min_cost and vertex.searched == False:
-    #                     self.queue.append(vertex)
-    #                     return
-            
-    #         # Once any vertices are added, add 1 to minimum value
-    #         self.min_cost += 1
-
-
-    # def handle_queue(self):
-    #     # Handle algorithm steps for each entry to check in the queue
-    #     for vertex in self.queue:
-
-    #         # Find neighbors of vertex in queue 
-    #         neighbors = []
-    #         neighbors = self.get_valid_neighbors(vertex)
-
-    #         # For each calculate the new total movement cost from origin through current vertex to neighbor
-    #         for neighbor in neighbors:
-    #             new_cost = vertex.total_cost + neighbor.move_cost
-
-    #             # If that cost is lower than its existing cost, update the total cost to the new value
-    #             if neighbor.total_cost > new_cost:
-    #                 neighbor.total_cost = new_cost
-
-    #             # Also check if it is the goal, and update the flag/add to path if so
-    #             if neighbor.pos == self.goal: 
-    #                 self.goal_reached = True
-
-    #                 # Add the neighbor as the only element of the path list
-    #                 self.path.append(neighbor)
-            
-    #         # Set searched flag to true for the vertex once this is done so it is not checked again
-    #         vertex.searched = True
-                
-
-
+          
     def return_path(self):
         '''From solved scan matrix, reconstruct the path from start to goal'''
         # Only does anything if path is no longer empty (because goal has been added)
@@ -191,21 +143,21 @@ class Pathfinder:
                     self.path = vector_list
 
 
-    def draw(self):
-        for path in self.path:
-            pg.draw.rect(self.SCREEN,'yellow',(path.x*100,path.y*100,100,100))
+    # def draw(self):
+    #     for path in self.path:
+    #         pg.draw.rect(self.SCREEN,'yellow',(path.x*100,path.y*100,100,100))
 
     def check_path_invalid(self):
         # Checks that start and end points are not obstacles to avoid running an obviously impossible sim
-        # Exploiting properties allows us to split this into a few legible lines instead of one giant one
+        # Exploiting properties  of booleans
+        # allows us to split this into a few legible lines instead of one giant one
         start_check = self.grid[int(self.start.y),int(self.start.x)] != 1
         goal_check = self.grid[int(self.goal.y),int(self.goal.x)] != 1
         return (start_check and goal_check)
     
     def heuristic(self,vertex):
         '''Score for distance to goal'''
-        # Might be handy for a greedy-first implementation down the road
-        # Unpack position values from vertex and goal
+        #Manhattan distance for use in A*, greedy algorithms
         vertex_x,vertex_y = vertex.pos
         goal_x,goal_y = self.goal
 
@@ -275,6 +227,9 @@ class Pathfinder:
         # Check if this is a valid question, immediately break if so
         if self.check_path_invalid() == False:
             print('invalid path')
+
+            # Show the out of bounds problem
+            self.display_vertices()
             return
 
         # If start is goal, no path needed
@@ -297,8 +252,7 @@ class Pathfinder:
 
         # Reconstruct path from grid
         self.return_path()
-
-        print(self.grid)
+        self.display_vertices()
 
     def display_vertices(self):
 
