@@ -16,10 +16,13 @@ class DijkstraPathfinder:
     # Implements the dijstra pathfinding algorithm using the steps outlined in
     #(https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php)
 
-    def __init__(self,screen:pg.Surface,start:v2,goal:v2,grid):
+    def __init__(self,screen:pg.Surface,start:v2,goal:v2,grid,algorithm:str):
         '''setup pathfinding algorithm scan'''
         # Initialize various parameters
         self.SCREEN = screen
+
+        # Algorithm to use
+        self.algorithm = algorithm
 
         # Starting position
         self.start = start
@@ -205,7 +208,7 @@ class DijkstraPathfinder:
         # Might be handy for a greedy-first implementation down the road
         # Unpack position values from vertex and goal
         vertex_x,vertex_y = vertex.pos
-        goal_x,goal_y = self.goal.pos
+        goal_x,goal_y = self.goal
 
         # Score based on "manhattan distance" (based on how it's done here: https://www.redblobgames.com/pathfinding/a-star/introduction.html)
         score = abs(vertex_x-goal_x) + abs(vertex_y-goal_y)
@@ -213,14 +216,17 @@ class DijkstraPathfinder:
     
     def sort_function(self,item):
         # For now, this function just returns the total cost
-        return item.total_cost
+        if self.algorithm == 'A': return self.heuristic(item) + item.total_cost
+        if self.algorithm == 'D': return item.total_cost
+        if self.algorithm == 'G': return self.heuristic(item) 
+        
 
     def continuous_queue(self):
         # Interate through queue until goal reached or entire grid has been searched
         for _ in range(self.search_limit):
             # Check if queue is empty, break if so
             if len(self.queue) == 0:
-                print('No path found')
+                print('path not found')
                 return
 
             # Pull first item from queue
@@ -256,8 +262,8 @@ class DijkstraPathfinder:
             self.queue.pop(0)
             self.queue.sort(key=self.sort_function)
             
-        # If no path found, say so
-        print('path not found')
+        # If no path found 
+        print('unexpected error')
         
     def run_pathfinding(self):
         # Finds cheapest path 
@@ -270,15 +276,25 @@ class DijkstraPathfinder:
         if self.goal == self.start:
             print("you're already there!")
             return
+        
+        # Check if algorithm is actually useable before running anything
+        if self.algorithm not in ['D','A','G']:
+            print('invalid algorithm')
+            return
 
         # New approach: continuous queue
         # Instead of the for loop. let's make a new function that runs until goal is reached
         # Initialize queue
         self.queue.append(self.scan_matrix[int(self.start.x),int(self.start.y)])
 
+        # Run algorithm until path found
         self.continuous_queue()
 
-        # Attempt to add a step for every possible square on the grid
+        # Reconstruct path from grid
+        self.return_path()
+
+        # Old stuff
+                # Attempt to add a step for every possible square on the grid
         # for _ in range(self.search_limit):            
 
         #     # Create queue of equal-cost vertices to check
@@ -294,7 +310,7 @@ class DijkstraPathfinder:
         #         print('path returned')
         #         return self.path
         # If we've made it this far, find and return the path (if any)
-        self.return_path()
+
         
         #If no path found, say so
         #print('path not found')
