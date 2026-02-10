@@ -1,7 +1,3 @@
-# File for the different pathfinding algorithms, each defined as a seperate
-# function. Can split into multiple  iles for different algorithms later if 
-# that ends up being easier to work on
-
 # EVERY ARRAY IS INDEXED Y,X!!!!!!!!! DO NOT FORGET THIS!!!!!!! 
 import pygame as pg
 from pygame import Vector2 as v2
@@ -95,20 +91,11 @@ class Pathfinder:
         # Only does anything if path is no longer empty (because goal has been added)
         if len(self.path) != 0:
 
-            # Render code
-            # a = 0
-            # width = self.cell_size
-            # pg.font.init()
-            # font = pg.font.SysFont("Times New Roman", 22) 
-            # pg.draw.rect(self.SCREEN,(a,50,50),(self.path[-1].pos.x*width,self.path[-1].pos.y*width,width,width))
-            # text_surface = font.render(str(a), True,'black')
-            # self.SCREEN.blit(text_surface,(self.path[-1].pos.x*width,self.path[-1].pos.y*width))
-            # a += 5
-
             # Iterate until path is found
             finished = False
             while finished == False:
                 print(len(self.path))
+
                 # Find neighbors of most recently added item in the path list
                 new_step = self.path[-1]
                 neighbors = self.get_valid_neighbors(new_step)
@@ -119,13 +106,6 @@ class Pathfinder:
                     # If the neighbor is a productive step towards the goal, add it to the path
                     if neighbor.total_cost == new_step.total_cost - new_step.move_cost:
                         self.path.append(neighbor)
-
-                        # Render code
-                        # pg.draw.rect(self.SCREEN,(a,50,50),(neighbor.pos.x*width,neighbor.pos.y*width,width,width))
-                        # text_surface = font.render(str(a), True,'black')
-                        # self.SCREEN.blit(text_surface,(neighbor.pos.x*width,neighbor.pos.y*width))
-                        # if a <= 235:
-                        #     a+=5
                         break
 
                 # Repeat until we add something with total cost = 0, as that's the start point!
@@ -142,14 +122,9 @@ class Pathfinder:
                     
                     self.path = vector_list
 
-
-    # def draw(self):
-    #     for path in self.path:
-    #         pg.draw.rect(self.SCREEN,'yellow',(path.x*100,path.y*100,100,100))
-
     def check_path_invalid(self):
         # Checks that start and end points are not obstacles to avoid running an obviously impossible sim
-        # Exploiting properties  of booleans
+        # Exploiting properties of booleans
         # allows us to split this into a few legible lines instead of one giant one
         start_check = self.grid[int(self.start.y),int(self.start.x)] != 1
         goal_check = self.grid[int(self.goal.y),int(self.goal.x)] != 1
@@ -242,8 +217,6 @@ class Pathfinder:
             print('invalid algorithm')
             return
 
-        # New approach: continuous queue
-        # Instead of the for loop. let's make a new function that runs until goal is reached
         # Initialize queue
         self.queue.append(self.scan_matrix[int(self.start.y),int(self.start.x)])
 
@@ -326,3 +299,20 @@ class Pathfinder:
 #     def find(self):
 #         #allowing diagonal movement to kinda differentiate the algorithms
 #         pathfinder = AStar(diagonal_movement=True)
+
+# Render code
+            # a = 0
+            # width = self.cell_size
+            # pg.font.init()
+            # font = pg.font.SysFont("Times New Roman", 22) 
+            # pg.draw.rect(self.SCREEN,(a,50,50),(self.path[-1].pos.x*width,self.path[-1].pos.y*width,width,width))
+            # text_surface = font.render(str(a), True,'black')
+            # self.SCREEN.blit(text_surface,(self.path[-1].pos.x*width,self.path[-1].pos.y*width))
+            # a += 5
+
+ # Render code
+                        # pg.draw.rect(self.SCREEN,(a,50,50),(neighbor.pos.x*width,neighbor.pos.y*width,width,width))
+                        # text_surface = font.render(str(a), True,'black')
+                        # self.SCREEN.blit(text_surface,(neighbor.pos.x*width,neighbor.pos.y*width))
+                        # if a <= 235:
+                        #     a+=5
