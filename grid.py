@@ -6,7 +6,7 @@ from pygame import Vector2 as v2
 from obstacles import Cell
 from pygame import Rect
 from vertex import Vertex
-from algorithms import DijkstraPathfinder
+from algorithms import Pathfinder
 
 
 class Grid:
@@ -64,7 +64,7 @@ screen = pg.display.set_mode((800,800))
 test = Grid(screen,16)
 test.create_grid_objects(40)
 test.draw()
-testpath = DijkstraPathfinder(screen,v2(15,15),v2(0,0),test.grid,'G')
+testpath = Pathfinder(screen,v2(0,0),v2(15,15),test.grid,'G')
 testpath.run_pathfinding()
 
 #testpath.draw()

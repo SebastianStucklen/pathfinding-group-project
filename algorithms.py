@@ -12,7 +12,7 @@ from vertex import Vertex
 # from pathfinding.finder.a_star import AStarFinder as AStar
 import pdb
 
-class DijkstraPathfinder:
+class Pathfinder:
     # Implements the dijstra pathfinding algorithm using the steps outlined in
     #(https://www.w3schools.com/dsa/dsa_algo_graphs_dijkstra.php)
 
