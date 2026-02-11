@@ -12,7 +12,9 @@ during the current run or after it has finished, but will not proceed until
 the current run has finished. Once all three pathfinding runs have finished, 
 the first bar plot (total searched cells) will display. Close
 this plot to see the next (path length). Close this plot to return the program
-to its original state. 
+to its original state. It is possible to stop running additional pathfinding runs after
+the. Instead of clicking the pygame screen, close it to skip to the remaining runs
+and move straight to the (incomplete) plots.
 
 Input parameters can be modified by passing keyword arguments to the
 compare_algorithms function call on line 104 of the "main" file. These arguments are:
@@ -36,6 +38,10 @@ display two plots in succession: the number of searched vertices and the length 
 for each algorithm. The plots display sequentially. Once the second has closed,
 the program returns to its original state. 
 
+Without running the algorithms, we cannot actually guarantee that any given
+start/goal pair has a path between them, so some pathfinding runs
+will result in no path being found. This will be printed to terminal, as will any
+error messages or status updates. 
 
 Bugs, quirks, and other things of note:
 The parameters are not filtered. Looking for grid cells outside the
@@ -46,3 +52,4 @@ Number of checked cells if off by +- 2, though path length is accurate (counting
 number of cells included in path, including start and enpoints in the total length). We
 believe this is an acceptable amount of error for qualitative comparisons of search 
 length, but it is a bug nonetheless.
+

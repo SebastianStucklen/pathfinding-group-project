@@ -138,12 +138,13 @@ class Pathfinder:
         vertex_x,vertex_y = vertex.pos
         goal_x,goal_y = self.goal
 
-        # Score based on "manhattan distance" (based on how it's done here: https://www.redblobgames.com/pathfinding/a-star/introduction.html)
+        # Score based on "manhattan distance" (based on how it's done here: 
+        # https://www.redblobgames.com/pathfinding/a-star/introduction.html)
         score = abs(vertex_x-goal_x) + abs(vertex_y-goal_y)
         return score
     
     def sort_function(self,item):
-        # For now, this function just returns the total cost
+        # Choose and implement a heuristic function based on initialization choice
         if self.algorithm == 'A': return self.heuristic(item) + item.total_cost
         if self.algorithm == 'D': return item.total_cost
         if self.algorithm == 'G': return self.heuristic(item) 
@@ -264,64 +265,3 @@ class Pathfinder:
         '''draw circles at start and endpoints'''
         pg.draw.circle(self.SCREEN, 'blue', (self.cell_size * self.start.x + self.offset, self.cell_size * self.start.y + self.offset),self.radius)
         pg.draw.circle(self.SCREEN, 'red', (self.cell_size * self.goal.x + self.offset, self.cell_size * self.goal.y + self.offset),self.radius)
-
-    def traveler(self):
-        pass
-        
-
-
-
-        # Old stuff
-                # Attempt to add a step for every possible square on the grid
-        # for _ in range(self.search_limit):            
-
-        #     # Create queue of equal-cost vertices to check
-        #     self.get_minimums()
-
-        #     # Iterate through queue, implementing the algorithm steps for each vertex
-        #     self.handle_queue()
-
-        #     # If we're at the goal, reconstruct and return the path
-        #     if self.goal_reached == True: 
-               
-        #         self.return_path()
-        #         print('path returned')
-        #         return self.path
-        # If we've made it this far, find and return the path (if any)
-
-        
-        #If no path found, say so
-        #print('path not found')
-
-        
-
-
-
-
-# class AstarPathfinder:
-#     '''Implementation of Astar Pathfinding'''
-#     def __init__(self,window,start:v2,goal:v2,grid):
-#         self.SCREEN = window
-#         self.start = start
-#         self.goal = goal
-#         self.grid = grid
-#     def find(self):
-#         #allowing diagonal movement to kinda differentiate the algorithms
-#         pathfinder = AStar(diagonal_movement=True)
-
-# Render code
-            # a = 0
-            # width = self.cell_size
-            # pg.font.init()
-            # font = pg.font.SysFont("Times New Roman", 22) 
-            # pg.draw.rect(self.SCREEN,(a,50,50),(self.path[-1].pos.x*width,self.path[-1].pos.y*width,width,width))
-            # text_surface = font.render(str(a), True,'black')
-            # self.SCREEN.blit(text_surface,(self.path[-1].pos.x*width,self.path[-1].pos.y*width))
-            # a += 5
-
- # Render code
-                        # pg.draw.rect(self.SCREEN,(a,50,50),(neighbor.pos.x*width,neighbor.pos.y*width,width,width))
-                        # text_surface = font.render(str(a), True,'black')
-                        # self.SCREEN.blit(text_surface,(neighbor.pos.x*width,neighbor.pos.y*width))
-                        # if a <= 235:
-                        #     a+=5
