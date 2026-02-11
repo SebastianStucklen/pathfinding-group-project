@@ -41,15 +41,22 @@ the program returns to its original state.
 Without running the algorithms, we cannot actually guarantee that any given
 start/goal pair has a path between them, so some pathfinding runs
 will result in no path being found. This will be printed to terminal, as will any
-error messages or status updates. 
+error messages or status updates. The final plots will reflect this: the paths
+will be nonexistent and the searched cells will include everywhere the algorithms
+tried to look.
 
 Bugs, quirks, and other things of note:
-The parameters are not filtered. Looking for grid cells outside the
+The parameters are not especially well filtered. Looking for grid cells outside the
 range of the program will crash the program. We have implemented some input filtering, but we cannot
 guarantee there is not some combination of attributes that will behave unexpectedly.
 
 Number of checked cells if off by +- 2, though path length is accurate (counting
 number of cells included in path, including start and enpoints in the total length). We
 believe this is an acceptable amount of error for qualitative comparisons of search 
-length, but it is a bug nonetheless.
+length, but it is a bug nonetheless. As a result, checked cells should only
+be taken seriously when it is fairly large and its percent error is small. Path length
+should always be accurate.
+
+Input buffering is a bit weird, and it seems to be possible to overwhelm pygame by spamming
+inputs while a pathfinding run is going. Outside of relatively extreme cases, this is usually not a problem.
 
