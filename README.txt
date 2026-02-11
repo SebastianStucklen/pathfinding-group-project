@@ -19,7 +19,7 @@ and move straight to the (incomplete) plots.
 Input parameters can be modified by passing keyword arguments to the
 compare_algorithms function call on line 104 of the "main" file. These arguments are:
 
-start: where the pathfinding algorithms start (pygame vector2, imput as v2(x,y))
+start: where the pathfinding algorithms start (pygame vector2, input as v2(x,y))
 end: where the pathfinding algorithms are trying to go (vector2)
 obs_num: Number of obstacles, from 1 up to total number of cells in grid - 5
 screensize: display screen width, between 100 and 1000 pixels
