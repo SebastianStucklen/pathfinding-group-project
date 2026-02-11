@@ -1,6 +1,5 @@
-
-
-# Test comment
+# This is almost certainly not used in the actual code, but we are leaving it
+# to avoid compatibility issues.
 
 class Traveler:
     def __init__(self,position,cellsize,algorithm):
