@@ -1,7 +1,6 @@
 import random
 import numpy as np
 import pygame as pg
-from globals import SCREEN_RECT
 from pygame import Vector2 as v2
 from obstacles import Cell
 from pygame import Rect
@@ -17,7 +16,7 @@ class Grid:
 		self.SCREEN = window
 		#size of each cell
 		self.gridsize = gridwh
-		self.cellsize = SCREEN_RECT.width/gridwh
+		self.cellsize = self.SCREEN.get_width()/gridwh
 
 		#create array
 		temp = []
@@ -26,27 +25,49 @@ class Grid:
 			for j in range(self.gridsize):
 				temp[i].append(0)
 		self.grid = np.array(temp)
-		self.matrix = np.full(self.gridsize,self.gridsize)
 		self.obstacles = []
 
-	def create_grid_objects(self,obstaclesnum:int):
+
+	def reset_grid(self):
+		temp = []
+		for i in range(self.gridsize):
+			temp.append([])
+			for j in range(self.gridsize):
+				temp[i].append(0)
+		self.grid = np.array(temp)
+		self.obstacles = []
+
+
+	def create_grid_objects(self,obstaclesnum:int,start:v2,end:v2):
 		'''generates and places grid obstacles'''
-		grid = []
+		genlist = [start,end]
 		#creates list of vectors for obstacle position
 		for i in range(obstaclesnum):
 			tempob = v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1))
-			if tempob not in grid:
-				grid.append(tempob)
+			if tempob not in genlist:
+				genlist.append(tempob)
 			else:
-				while tempob in grid:
+				is_invalid = True
+				while is_invalid:
 					tempob = v2(random.randint(0,self.gridsize-1),random.randint(0,self.gridsize-1))
-				grid.append(tempob)
+					if tempob not in genlist:
+						is_invalid = False
+						genlist.append(tempob)
 		#adds them to the self.grid, and creates list of obstacle objects
-		for i in range(len(grid)):
-			self.grid[int(grid[i].x)][int(grid[i].y)] = 1
-			self.obstacles.append(Cell(v2(grid[i].x,grid[i].y),1,self.cellsize))
-		with open('output_file.txt', 'w') as file:
-			file.write(str(self.grid))
+		del genlist[0]
+		del genlist[1]
+		templist = genlist
+		for i in range(len(genlist)-1):
+			if genlist[i].x == start.x and genlist[i].y == start.y:
+				del templist[i]
+			elif genlist[i].x == end.x and genlist[i].y == end.y:
+				del templist[i]
+		genlist = templist
+		for i in range(len(genlist)):
+			self.grid[int(genlist[i].x)][int(genlist[i].y)] = 1
+			self.obstacles.append(Cell(v2(genlist[i].x,genlist[i].y),1,self.cellsize))
+		# with open('output_file.txt', 'w') as file:
+		# 	file.write(str(self.grid))
 
 	def draw(self):
 		self.SCREEN.fill('white')
@@ -59,15 +80,4 @@ class Grid:
 				# 	temp = Rect((j*self.cellsize),(i*self.cellsize),self.cellsize,self.cellsize)
 				# 	pg.draw.rect(self.SCREEN,'red',temp)
 
-# test code:
-screen = pg.display.set_mode((800,800))
-test = Grid(screen,32)
-test.create_grid_objects(int(16**2))
-test.draw()
-# testpath = Pathfinder(screen,v2(0,9),v2(15,5),test.grid,'G')
-# testpath.run_pathfinding()
-testpath = Pathfinder(screen,v2(3,10),v2(28,20),test.grid,'A')
-testpath.run_pathfinding()
 
-while True:
-	pg.display.flip()

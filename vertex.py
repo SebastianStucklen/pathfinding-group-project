@@ -12,6 +12,9 @@ class Vertex:
         # Position for ease of use
         # Numpy array for now
         self.pos = v2(x_pos,y_pos)
+        self.x = self.pos.x
+        self.y = self.pos.y
+
 
         # Search and is goal flags
         self.searched = False

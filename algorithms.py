@@ -3,8 +3,6 @@ import pygame as pg
 from pygame import Vector2 as v2
 import numpy as np
 from vertex import Vertex
-# import pathfinding
-# from pathfinding.finder.a_star import AStarFinder as AStar
 import pdb
 
 class Pathfinder:
@@ -43,7 +41,7 @@ class Pathfinder:
 
         # Limits how long the program will spend trying to pass through walls
         self.search_limit = self.gridshape**2
-
+        self.search_steps = 0
         # Rendering parameters for visualizing the algorithm
         self.radius = self.cell_size * 0.45
         self.offset = self.cell_size/2
@@ -94,7 +92,6 @@ class Pathfinder:
             # Iterate until path is found
             finished = False
             while finished == False:
-                print(len(self.path))
 
                 # Find neighbors of most recently added item in the path list
                 new_step = self.path[-1]
@@ -118,7 +115,7 @@ class Pathfinder:
                     # This is a list of vertices, and we want coordinates, so overwrite path with a list of vectors
                     vector_list = []
                     for vertex in self.path:
-                        vector_list.append(vertex.pos)
+                        vector_list.append(v2(vertex.x,vertex.y))
                     
                     self.path = vector_list
 
@@ -128,7 +125,12 @@ class Pathfinder:
         # allows us to split this into a few legible lines instead of one giant one
         start_check = self.grid[int(self.start.y),int(self.start.x)] != 1
         goal_check = self.grid[int(self.goal.y),int(self.goal.x)] != 1
-        return (start_check and goal_check)
+
+        if start_check == True and goal_check == True:
+            return True
+        else:
+            return False
+        #return (start_check and goal_check)
     
     def heuristic(self,vertex):
         '''Score for distance to goal'''
@@ -146,12 +148,11 @@ class Pathfinder:
         if self.algorithm == 'D': return item.total_cost
         if self.algorithm == 'G': return self.heuristic(item) 
         
-
     def continuous_queue(self):
         
         # Interate through queue until goal reached or entire grid has been searched
         for _ in range(self.search_limit):
-
+            self.search_steps += 1
             # Check if queue is empty, break if so
             if len(self.queue) == 0:
                 print('path not found')
@@ -198,10 +199,10 @@ class Pathfinder:
         print('unexpected error')
         
     def run_pathfinding(self):
-        # Finds cheapest path 
+
         # Check if this is a valid question, immediately break if so
         if self.check_path_invalid() == False:
-            print('invalid path')
+            print('start or goal blocked')
 
             # Show the out of bounds problem
             self.display_vertices()
@@ -217,7 +218,9 @@ class Pathfinder:
             print('invalid algorithm')
             return
 
-        # Initialize queue
+        # Reset and initialize queue
+        self.queue = []
+        self.path = []
         self.queue.append(self.scan_matrix[int(self.start.y),int(self.start.x)])
 
         # Run algorithm until path found
@@ -225,11 +228,15 @@ class Pathfinder:
 
         # Reconstruct path from grid
         self.return_path()
+
+        # Show path and announce success if path exists
         self.display_vertices()
+
+        if len(self.path) > 0: print('path found!')
 
     def display_vertices(self):
 
-        # Show all searched vertices in green
+        # Show all searched vertices in yellow
         for row in self.scan_matrix:
             for vertex in row:
                 if vertex.searched == True:
@@ -245,7 +252,7 @@ class Pathfinder:
             for coordinate in self.path:
                 color_step += path_gradient_step
                 pg.draw.circle(self.SCREEN,
-                               (color_step,0,255-color_step),
+                               (int(color_step),0,int(255-color_step)),
                                (self.cell_size*coordinate.x+self.offset,self.cell_size*coordinate.y+self.offset),
                                self.radius)
                 
@@ -258,6 +265,8 @@ class Pathfinder:
         pg.draw.circle(self.SCREEN, 'blue', (self.cell_size * self.start.x + self.offset, self.cell_size * self.start.y + self.offset),self.radius)
         pg.draw.circle(self.SCREEN, 'red', (self.cell_size * self.goal.x + self.offset, self.cell_size * self.goal.y + self.offset),self.radius)
 
+    def traveler(self):
+        pass
         
 
 

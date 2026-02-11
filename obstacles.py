@@ -1,5 +1,4 @@
 import pygame as pg
-from globals import SCREEN_SIZE
 from pygame import Vector2 as v2
 
 
